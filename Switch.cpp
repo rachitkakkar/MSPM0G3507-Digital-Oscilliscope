@@ -9,15 +9,23 @@
 // LaunchPad.h defines all the indices into the PINCM table
 void Switch_Init(void){
     // write this
-  IOMUX->SECCFG.PINCM[PA28INDEX] = 0x00040081; // input, no pull
-  IOMUX->SECCFG.PINCM[PA27INDEX] = 0x00040081; // input, no pull
+  IOMUX->SECCFG.PINCM[PA18INDEX] = 0x00040081; // input, no pull
+  IOMUX->SECCFG.PINCM[PA17INDEX] = 0x00040081; // input, no pull
   IOMUX->SECCFG.PINCM[PA16INDEX] = 0x00040081; // input, no pull
-  IOMUX->SECCFG.PINCM[PA15INDEX] = 0x00040081; // input, no pull
+  IOMUX->SECCFG.PINCM[PB16INDEX] = 0x00040081; // input, no pull
 }
 // return current state of switches
 uint32_t Switch_In(void){
     // write this
-  uint32_t data = GPIOA->DIN31_0;
-  data = ((data>>15)&0x03) | ((data&((1<<28)|(1<<27)))>>25);
-  return data; // return 0; //replace this your code
+  uint32_t data = GPIOB->DIN31_0;
+  uint32_t state = 0;
+
+  if (data & (1<<16)) state |= 0x1;
+  
+  data = GPIOA->DIN31_0;
+  if (data & (1<<16)) state |= 0x2;
+  if (data & (1<<17)) state |= 0x4;
+  if (data & (1<<18)) state |= 0x8;
+
+  return state; // return 0; //replace this your code
 }

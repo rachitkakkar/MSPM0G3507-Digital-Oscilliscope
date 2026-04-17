@@ -48,31 +48,39 @@ Oscilliscope scope;
 Application app;
 
 // games  engine runs at 30Hz
+uint32_t last=0,now;
 void TIMG12_IRQHandler(void) {
   if((TIMG12->CPU_INT.IIDX) == 1){ // this will acknowledge
-    GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
-    GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
+    GPIOA->DOUTTGL31_0 =  BLUE; // toggle PB22 (minimally intrusive debugging)
+    GPIOA->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
     // game engine goes here
     // 1) sample slide pot
     // 2) read input switches
+    
+    now = Switch_In();
+    if (now == 0x02 && (now != last)) {
+      scope.paused = !scope.paused;
+      GPIOA->DOUTTGL31_0 = (1 << 28);
+    }
+    last = now;
     // 3) move sprites
     // 4) start sounds
     // 5) set semaphore
     // NO LCD OUTPUT IN INTERRUPT SERVICE ROUTINES
-    GPIOB->DOUTTGL31_0 = GREEN; // toggle PB27 (minimally intrusive debugging)
+    GPIOA->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
   }
 }
 
 void TIMG6_IRQHandler(void) {
   if((TIMG6->CPU_INT.IIDX) == 1){ // this will acknowledge
-    GPIOB->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
-    GPIOB->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
+    GPIOA->DOUTTGL31_0 = (1 << 27); // toggle PA27 (minimally intrusive debugging)
+    GPIOA->DOUTTGL31_0 = (1 << 27); // toggle PA27 (minimally intrusive debugging)
 
     if (!scope.bufferFull) {
       uint32_t sample = scope.In();
       
       if (scope.sampleIdx == 0) {
-        if (sample < scope.triggerLevel) {
+        if (sample <= scope.triggerLevel) {
           return;
         }
       }
@@ -80,7 +88,7 @@ void TIMG6_IRQHandler(void) {
       scope.Add_Sample(sample);
     }
 
-    GPIOB->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
+    GPIOA->DOUTTGL31_0 = (1 << 27);// toggle PA27 (minimally intrusive debugging)
   }
 }
 
@@ -183,11 +191,21 @@ int main3(void){ // main3
   __disable_irq();
   PLL_Init(); // set bus speed
   LaunchPad_Init();
+  uint32_t last=0,now;
+  ST7735_InitPrintf(INITR_REDTAB); // INITR_REDTAB for AdaFruit, INITR_BLACKTAB for HiLetGo
+  ST7735_FillScreen(ST7735_BLACK);
+  ST7735_SetCursor(1, 1);
   Switch_Init(); // initialize switches
   LED_Init(); // initialize LED
   while(1){
     // write code to test switches and LEDs
-
+    now = Switch_In(); // Your Lab5 input
+    if(now != last){ // change
+      ST7735_FillScreen(0x0000);
+      ST7735_SetCursor(1, 1);
+      ST7735_OutString((char*)"Switch= 0x"); ST7735_OutUHex2(now, ST7735_YELLOW); ST7735_OutString((char*)"\n\r");
+    }
+    last = now;
   }
 }
 // use main4 to test sound outputs
@@ -229,24 +247,27 @@ int main(void){ // final main
   Sensor.Init(); // PB18 = ADC1 channel 5, slidepot
   // Add line to initalize ADC0 for scope
   scope.Init();
+  Cursor hCursor1(20, 130, Type::HORIZONTAL);
+  Cursor hCursor2(100, 130, Type::HORIZONTAL);
+  Cursor* selected = &hCursor1;
+
   Switch_Init(); // initialize switches
   LED_Init();    // initialize LED
   Sound_Init();  // initialize sound
   TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
 
   // initialize timer interrupts
-  TimerG6_IntArm(8000000 / 10000, 0, 1); // Scope interrupt, 10kHz
-  TimerG12_IntArm(8000000 / 30, 2); // Game engine interrupt, 30Hz
+  TimerG6_IntArm(8000000 / 100000, 0, 0); // Scope interrupt, 100kHz
+  TimerG12_IntArm(8000000 / 30, 1); // Game engine interrupt, 30Hz
 
   // initialize all data structures
   __enable_irq();
 
   while(1){
-    if (scope.bufferFull) {
+    if (scope.bufferFull && !scope.paused) {
       // disable timer
       __disable_irq();
 
-      app.Draw_Grid();
       app.Draw_Graph(scope);
 
       scope.bufferFull = false;
@@ -255,6 +276,10 @@ int main(void){ // final main
       // enable timer
       __enable_irq();
     }
+
+    hCursor1.Draw();
+    hCursor2.Draw();
+
     // wait for semaphore
        // clear semaphore
        // update ST7735R
