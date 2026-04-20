@@ -29,16 +29,21 @@ void Application::Draw_Grid() {
 }
 
 void Application::Fix_Grid(uint32_t x, uint32_t y) {
-    if (y % 8 == 0) {
-        ST7735_DrawPixel(x, y, MINOR_GRID_LINE);
+    if (x > GRID_WIDTH-1 || y > GRID_HEIGHT-1) { 
+        ST7735_DrawPixel(x, y, ST7735_BLACK);
+        return;
     }
-    if (x % 32 == 0 || x == GRID_WIDTH-1) {
+
+    if (x % 32 == 0 || x == GRID_WIDTH-1 || y % 32 == 0 || y == GRID_HEIGHT-1) {
         ST7735_DrawPixel(x, y, MAJOR_GRID_LINE);   // major line
-    } else if (x % 8 == 0) {
+    } 
+    
+    else if (x % 8 == 0 || y % 8 == 0) {
         ST7735_DrawPixel(x, y, MINOR_GRID_LINE);   // minor line
     }
-    if (y % 32 == 0 || y == GRID_HEIGHT-1) {
-        ST7735_DrawPixel(x, y, MAJOR_GRID_LINE);
+
+    else{
+        ST7735_DrawPixel(x, y, ST7735_BLACK); //else just do normal black
     }
 }
 
@@ -66,13 +71,74 @@ void Application::Draw_Graph(const Oscilliscope& scope) {
     }
 }
 
-Cursor::Cursor(int x1, int y1, Type t) : x(x1), y(y1), type(t) {} 
+Cursor::Cursor(int x1, int y1, Type t, int step_size) : x(x1), y(y1), type(t), step_size(step_size) {} 
 
 void Cursor::Draw() {
     if (type == Type::HORIZONTAL) {
         ST7735_DrawBitmap(x, y, PlayerShip0, 18, 8);
     }
+    else if (type == Type::VERTICAL){
+        ST7735_DrawBitmap(x, y, vertical_orange_cursor, 18, 8);
+    }
 }
+
+void Cursor::Erase(Application& app) {
+    int w;
+    int h;
+
+    //set bitmap dims
+    if (type == Type::HORIZONTAL){
+        w = 18;
+        h = 8;
+    } 
+    else {
+        w = 8;
+        h = 18;
+    }
+
+    // ST7735_FillRect(x, y-8, 18, 8, ST7735_BLACK);
+
+    //restore black background
+    for(int i = 0; i < w; i++){
+        for(int j = 0; j < h; j++){
+            app.Fix_Grid(x + i, y - j);
+        }
+    }
+
+}
+
+void Cursor::Move(int direction, Application& app){
+    Erase(app);
+    if (type == Type::HORIZONTAL) {
+        x += (direction * step_size);
+        x %= GRID_WIDTH;
+    } else {
+        y += (direction * step_size) % GRID_HEIGHT;
+        y %= GRID_HEIGHT;
+    }
+
+    // // defining bounds
+    // int width;
+    // int height;
+
+    // if (type == Type::HORIZONTAL) {
+    //     width = 18;
+    //     height = 8;
+    // } 
+    // else {
+    //     // Vertical layout: taller than wide
+    //     width = 8;
+    //     height = 18;
+    // }
+
+    // //boundary checks
+    // if(x < 0){x = 0;}
+    // if (x > 127 - width) {x = 127 - width;}
+
+    // if(y < 0){y = 0;}
+    // if(y > 127 - height){y = 127 - height;}
+}
+
 
 
 Oscilliscope::Oscilliscope() {

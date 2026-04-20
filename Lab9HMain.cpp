@@ -46,9 +46,13 @@ uint32_t Random(uint32_t n){
 SlidePot Sensor(1500,0); // copy calibration from Lab 7
 Oscilliscope scope;
 Application app;
+Cursor hCursor(20, 130, HORIZONTAL, 5); //temp values
+Cursor hCursor2(100, 130, HORIZONTAL, 5); //temp values
+Cursor* selected = &hCursor;
 
 // games  engine runs at 30Hz
 uint32_t last=0,now;
+bool toggle_vert_cursor = true; //BY DEFAULT, IT IS UP/DOWN
 void TIMG12_IRQHandler(void) {
   if((TIMG12->CPU_INT.IIDX) == 1){ // this will acknowledge
     GPIOA->DOUTTGL31_0 =  BLUE; // toggle PB22 (minimally intrusive debugging)
@@ -58,14 +62,29 @@ void TIMG12_IRQHandler(void) {
     // 2) read input switches
     
     now = Switch_In();
+
+    // if(now == 0x01){
+    //   toggle_vert_cursor = !toggle_vert_cursor; //switch modes
+    //   Sound_CursorToggle();
+    //   while(Switch_In() == 0x01); //have to wait for release?
+    // }
+
     if (now == 0x02 && (now != last)) {
       scope.paused = !scope.paused;
       GPIOA->DOUTTGL31_0 = (1 << 28);
+      Sound_Pause(); //sound
     }
-    last = now;
+
+    if (now == 0x01 && (now != last)) {
+      selected->Move(1, app);
+      Sound_CursorMove();
+    }
+
     // 3) move sprites
     // 4) start sounds
+
     // 5) set semaphore
+    last = now;
     // NO LCD OUTPUT IN INTERRUPT SERVICE ROUTINES
     GPIOA->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
   }
@@ -247,9 +266,8 @@ int main(void){ // final main
   Sensor.Init(); // PB18 = ADC1 channel 5, slidepot
   // Add line to initalize ADC0 for scope
   scope.Init();
-  Cursor hCursor1(20, 130, Type::HORIZONTAL);
-  Cursor hCursor2(100, 130, Type::HORIZONTAL);
-  Cursor* selected = &hCursor1;
+  // Cursor hCursor1(20, 130, Type::HORIZONTAL, 5); //temp step_size
+  // Cursor hCursor2(100, 130, Type::VERTICAL, 5);
 
   Switch_Init(); // initialize switches
   LED_Init();    // initialize LED
@@ -257,7 +275,7 @@ int main(void){ // final main
   TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
 
   // initialize timer interrupts
-  TimerG6_IntArm(8000000 / 100000, 0, 0); // Scope interrupt, 100kHz
+  TimerG6_IntArm(8000000 / 10000, 0, 0); // Scope interrupt, 10kHz
   TimerG12_IntArm(8000000 / 30, 1); // Game engine interrupt, 30Hz
 
   // initialize all data structures
@@ -277,7 +295,7 @@ int main(void){ // final main
       __enable_irq();
     }
 
-    hCursor1.Draw();
+    hCursor.Draw();
     hCursor2.Draw();
 
     // wait for semaphore
