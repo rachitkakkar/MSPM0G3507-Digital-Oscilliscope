@@ -46,6 +46,7 @@ uint32_t Random(uint32_t n){
 SlidePot Sensor(1500,0); // copy calibration from Lab 7
 Oscilliscope scope;
 Application app;
+bool clear = false;
 
 Cursor hCursor(20, 130, HORIZONTAL, 5); //temp values
 Cursor hCursor2(100, 130, HORIZONTAL, 5); //temp values
@@ -93,6 +94,7 @@ void TIMG12_IRQHandler(void) {
     if(now == 0x08 && (now != last)){
       index++;
       index %= 4;
+      clear = true;
       selected = cursors[index];
       Sound_CursorToggle();
     } 
@@ -120,6 +122,9 @@ void TIMG6_IRQHandler(void) {
         if (sample <= scope.triggerLevel) {
           return;
         }
+        // if (sample > (scope.triggerLevel-1) || sample < (scope.triggerLevel - 20)) {
+        //   return;
+        // }
       }
 
       scope.Add_Sample(sample);
@@ -293,16 +298,17 @@ int main(void){ // final main
   TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
 
   // initialize timer interrupts
-  TimerG6_IntArm(8000000 / 100000, 0, 0); // Scope interrupt, 10kHz
-  TimerG12_IntArm(8000000 / 30, 1); // Game engine interrupt, 30Hz
+  TimerG6_IntArm(8000000 / 50000, 0, 1); // Scope interrupt, 10kHz
+  TimerG12_IntArm(8000000 / 30, 0); // Game engine interrupt, 30Hz
 
   // initialize all data structures
   __enable_irq();
 
   while(1){
     if (scope.bufferFull && !scope.paused) {
+      TIMG6->CPU_INT.IMASK &= 0;
       // disable timer
-      __disable_irq();
+      // __disable_irq();
 
       app.Draw_Graph(scope);
 
@@ -310,13 +316,21 @@ int main(void){ // final main
       scope.sampleIdx = 0;
 
       // enable timer
-      __enable_irq();
+      // __enable_irq();
+      TIMG6->CPU_INT.IMASK |= 1;
     }
 
     hCursor.Draw();
     hCursor2.Draw();
     vCursor.Draw();
     vCursor2.Draw();
+
+    
+    if (clear) {
+      ST7735_FillScreen(ST7735_BLACK);
+      app.Draw_Grid();
+      clear = false;
+    }
 
     // wait for semaphore
        // clear semaphore

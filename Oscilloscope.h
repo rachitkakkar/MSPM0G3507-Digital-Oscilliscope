@@ -17,6 +17,7 @@
 struct Oscilliscope {
     volatile int prevSamples[GRID_WIDTH];
     volatile int samples[GRID_WIDTH];
+    volatile uint32_t times[GRID_WIDTH];
     volatile int sampleIdx;
     volatile bool bufferFull;
     volatile bool paused;
@@ -37,6 +38,7 @@ enum Language {
 struct Application {
     int paused;
     Language lang;
+    int cnt;
 
     Application();
     void Init_Startup();

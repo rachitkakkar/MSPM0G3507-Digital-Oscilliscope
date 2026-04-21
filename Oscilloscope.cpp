@@ -2,6 +2,7 @@
 
 Application::Application() {
     paused = 1;
+    cnt = 0;
     lang = ENGLISH;
 }
 
@@ -47,10 +48,13 @@ void Application::Fix_Grid(uint32_t x, uint32_t y) {
     }
 }
 
-#define VREF_MV 3260
+#define VREF_MV 3300
 #define TOTAL_TIME_MS 10
 
 void Application::Draw_Graph(const Oscilliscope& scope) {
+    cnt++;
+    cnt %= 100;
+
     for (int i = 0; i < GRID_WIDTH; i++) {
         int32_t point = MAP_Y(scope.prevSamples[i]);
         ST7735_DrawPixel(i, point, ST7735_BLACK);
@@ -74,35 +78,88 @@ void Application::Draw_Graph(const Oscilliscope& scope) {
     }
 
     uint32_t minV = 4095, maxV = 0;
-    int32_t crossings = 0;
-    
     for (int i = 0; i < GRID_WIDTH; i++) {
         if (scope.samples[i] < minV) minV = scope.samples[i];
         if (scope.samples[i] > maxV) maxV = scope.samples[i];
     }
     
-    uint32_t vpp_mv = ((maxV - minV) * VREF_MV) / 4095;
 
-    uint32_t midpoint = (maxV + minV) / 2;
-    for (int i = 1; i < GRID_WIDTH; i++) {
-        if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
-            crossings++;
+    if (cnt == 0 || true) {
+        uint32_t vpp_mv = ((maxV - minV) * VREF_MV) / 4095;
+
+        uint32_t midpoint = (maxV + minV) / 2;
+        // int32_t crossings = 0;
+        // for (int i = 1; i < GRID_WIDTH; i++) {
+        //     if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
+        //         crossings++;
+        //     }
+        // }
+
+        ST7735_SetCursor(0, 14);
+        ST7735_OutString((char*)"Vpp:  ");
+        ST7735_OutUDec(vpp_mv / 1000);
+        ST7735_OutChar('.');
+        
+        uint32_t decimals = (vpp_mv % 1000) / 10;
+        if (decimals < 10) ST7735_OutChar('0'); // Leading zero padding
+        ST7735_OutUDec(decimals);
+        ST7735_OutString((char*)" V  ");
+
+        // int x = 0; // skip overflow
+        // while (scope.times[x] <= scope.times[x+1]) {
+        //     x++;
+        // }
+        // uint32_t elapsedCycles = (scope.times[x] - scope.times[x+1]) * (GRID_WIDTH-1);
+        // uint32_t elapsedCycles = 12544000;
+
+        // if (elapsedCycles > 0 && crossings > 0) {
+        //     uint64_t numerator = (uint64_t)crossings * 80000000;
+        //     uint32_t freq_hz = (uint32_t)(numerator / elapsedCycles);
+
+        //     ST7735_SetCursor(0, 15);
+        //     ST7735_OutString((char*)"Freq: ");
+        //     ST7735_OutUDec(freq_hz);
+        //     ST7735_OutString((char*)" Hz    ");
+        // }
+
+        uint32_t first_idx = 0;
+        uint32_t last_idx = 0;
+        uint32_t crossings = 0;
+        bool found_first = false;
+
+        for (int i = 1; i < GRID_WIDTH; i++) {
+            // Detect Rising Edge crossing the midpoint
+            if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
+                if (!found_first) {
+                    first_idx = i;
+                    found_first = true;
+                }
+                last_idx = i;
+                crossings++;
+            }
+        }
+
+        ST7735_SetCursor(0, 15);
+        ST7735_OutString((char*)"Freq: ");
+
+        if (crossings >= 2) {
+            uint32_t actual_periods = crossings - 1;
+            uint32_t samples_elapsed = last_idx - first_idx;
+
+            // Total cycles elapsed between the first and last edge
+            uint64_t total_cycles = (uint64_t)samples_elapsed * 97400;
+
+            if (total_cycles > 0) {
+                uint64_t numerator = (uint64_t)actual_periods * 80000000;
+                uint32_t freq_hz = (uint32_t)(numerator / total_cycles);
+
+                ST7735_OutUDec(freq_hz);
+                ST7735_OutString((char*)" Hz    ");
+            }
+        } else {
+            ST7735_OutString((char*)"--- Hz    ");
         }
     }
-
-    uint32_t freq_hz = (crossings * 1000) / TOTAL_TIME_MS;
-
-    ST7735_SetCursor(0, 14);
-    ST7735_OutString((char*)"Vpp:  ");
-    ST7735_OutUDec(vpp_mv / 1000); // Whole Volts
-    ST7735_OutChar('.');
-    ST7735_OutUDec((vpp_mv % 1000) / 10); // Two digits of mV
-    ST7735_OutString((char*)" V  ");
-
-    ST7735_SetCursor(0, 15);
-    ST7735_OutString((char*)"Freq: ");
-    ST7735_OutUDec(freq_hz);
-    ST7735_OutString((char*)" Hz    ");
 }
 
 Cursor::Cursor(int x1, int y1, Type t, int step_size) : x(x1), y(y1), type(t), step_size(step_size) {} 
@@ -117,6 +174,8 @@ void Cursor::Draw() {
 }
 
 void Cursor::Erase(Application& app) {
+    TIMG6->CPU_INT.IMASK &= 0;
+
     int w;
     int h;
 
@@ -139,6 +198,7 @@ void Cursor::Erase(Application& app) {
         }
     }
 
+    TIMG6->CPU_INT.IMASK |= 1;
 }
 
 void Cursor::Move(int direction, Application& app){
@@ -215,6 +275,7 @@ uint32_t Oscilliscope::In() {
 void Oscilliscope::Add_Sample(uint32_t sample) {
     prevSamples[sampleIdx] = samples[sampleIdx];
     samples[sampleIdx] = sample;
+    times[sampleIdx] = TIMG12->COUNTERREGS.CTR;
     sampleIdx++;
 
     if (sampleIdx >= GRID_WIDTH) {
