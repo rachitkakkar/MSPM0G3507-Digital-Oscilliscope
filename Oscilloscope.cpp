@@ -47,6 +47,9 @@ void Application::Fix_Grid(uint32_t x, uint32_t y) {
     }
 }
 
+#define VREF_MV 3260
+#define TOTAL_TIME_MS 10
+
 void Application::Draw_Graph(const Oscilliscope& scope) {
     for (int i = 0; i < GRID_WIDTH; i++) {
         int32_t point = MAP_Y(scope.prevSamples[i]);
@@ -69,6 +72,37 @@ void Application::Draw_Graph(const Oscilliscope& scope) {
         ST7735_DrawPixel(i+1, point, ST7735_YELLOW);
         ST7735_DrawPixel(i+1, point+1, ST7735_YELLOW);
     }
+
+    uint32_t minV = 4095, maxV = 0;
+    int32_t crossings = 0;
+    
+    for (int i = 0; i < GRID_WIDTH; i++) {
+        if (scope.samples[i] < minV) minV = scope.samples[i];
+        if (scope.samples[i] > maxV) maxV = scope.samples[i];
+    }
+    
+    uint32_t vpp_mv = ((maxV - minV) * VREF_MV) / 4095;
+
+    uint32_t midpoint = (maxV + minV) / 2;
+    for (int i = 1; i < GRID_WIDTH; i++) {
+        if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
+            crossings++;
+        }
+    }
+
+    uint32_t freq_hz = (crossings * 1000) / TOTAL_TIME_MS;
+
+    ST7735_SetCursor(0, 14);
+    ST7735_OutString((char*)"Vpp:  ");
+    ST7735_OutUDec(vpp_mv / 1000); // Whole Volts
+    ST7735_OutChar('.');
+    ST7735_OutUDec((vpp_mv % 1000) / 10); // Two digits of mV
+    ST7735_OutString((char*)" V  ");
+
+    ST7735_SetCursor(0, 15);
+    ST7735_OutString((char*)"Freq: ");
+    ST7735_OutUDec(freq_hz);
+    ST7735_OutString((char*)" Hz    ");
 }
 
 Cursor::Cursor(int x1, int y1, Type t, int step_size) : x(x1), y(y1), type(t), step_size(step_size) {} 

@@ -275,7 +275,7 @@ int main(void){ // final main
   TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
 
   // initialize timer interrupts
-  TimerG6_IntArm(8000000 / 10000, 0, 0); // Scope interrupt, 10kHz
+  TimerG6_IntArm(8000000 / 100000, 0, 0); // Scope interrupt, 10kHz
   TimerG12_IntArm(8000000 / 30, 1); // Game engine interrupt, 30Hz
 
   // initialize all data structures
