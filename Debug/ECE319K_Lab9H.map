@@ -224,38 +224,42 @@ section   page    origin      length       input sections
                   00005338    00000004     Lab9HMain.o (.init_array)
                   0000533c    00000004     --HOLE-- [fill = 0]
 
-.data      0    20200000    0000063d     UNINITIALIZED
+.data      0    20200000    00000671     UNINITIALIZED
                   20200000    0000040c     Lab9HMain.o (.data.scope)
                   2020040c    000000f0     libc.a : defs.c.obj (.data._ftable)
                   202004fc    00000078     libsysbm.a : host_device.c.obj (.data._device)
                   20200574    00000050                : host_device.c.obj (.data._stream)
                   202005c4    00000014     Lab9HMain.o (.data.Sensor)
-                  202005d8    00000010     Lab9HMain.o (.data.hCursor2)
-                  202005e8    00000010     Lab9HMain.o (.data.hCursor)
-                  202005f8    00000008     libc.a : exit.c.obj (.data..L_MergedGlobals)
-                  20200600    00000008     Lab9HMain.o (.data.app)
-                  20200608    00000004     Clock.o (.data.BusFreq)
-                  2020060c    00000004     Sound.o (.data.SoundCount)
-                  20200610    00000004     ST7735.o (.data.StX)
-                  20200614    00000004     ST7735.o (.data.StY)
-                  20200618    00000004     libc.a : defs.c.obj (.data.__TI_ft_end)
-                  2020061c    00000004            : _lock.c.obj (.data._lock)
-                  20200620    00000004            : _lock.c.obj (.data._unlock)
-                  20200624    00000004     Lab9HMain.o (.data.last)
-                  20200628    00000004     Lab9HMain.o (.data.selected)
-                  2020062c    00000002     ST7735.o (.data.StTextColor)
-                  2020062e    00000002     ST7735.o (.data._ZL6_width)
-                  20200630    00000002     ST7735.o (.data._ZL7_height)
-                  20200632    00000002     --HOLE--
-                  20200634    00000001     libsysbm.a : add_device.c.obj (.data.add_device.device_init)
-                  20200635    00000003     --HOLE--
-                  20200638    00000001     libc.a : memory.c.obj (.data.memory_is_initialized)
-                  20200639    00000003     --HOLE--
-                  2020063c    00000001     libsysbm.a : open.c.obj (.data.open.stream_init)
+                  202005d8    00000010     Lab9HMain.o (.data.cursors)
+                  202005e8    00000010     Lab9HMain.o (.data.hCursor2)
+                  202005f8    00000010     Lab9HMain.o (.data.hCursor)
+                  20200608    00000010     Lab9HMain.o (.data.vCursor2)
+                  20200618    00000010     Lab9HMain.o (.data.vCursor)
+                  20200628    00000008     libc.a : exit.c.obj (.data..L_MergedGlobals)
+                  20200630    00000008     Lab9HMain.o (.data.app)
+                  20200638    00000004     Clock.o (.data.BusFreq)
+                  2020063c    00000004     Sound.o (.data.SoundCount)
+                  20200640    00000004     ST7735.o (.data.StX)
+                  20200644    00000004     ST7735.o (.data.StY)
+                  20200648    00000004     libc.a : defs.c.obj (.data.__TI_ft_end)
+                  2020064c    00000004            : _lock.c.obj (.data._lock)
+                  20200650    00000004            : _lock.c.obj (.data._unlock)
+                  20200654    00000004     Lab9HMain.o (.data.index)
+                  20200658    00000004     Lab9HMain.o (.data.last)
+                  2020065c    00000004     Lab9HMain.o (.data.selected)
+                  20200660    00000002     ST7735.o (.data.StTextColor)
+                  20200662    00000002     ST7735.o (.data._ZL6_width)
+                  20200664    00000002     ST7735.o (.data._ZL7_height)
+                  20200666    00000002     --HOLE--
+                  20200668    00000001     libsysbm.a : add_device.c.obj (.data.add_device.device_init)
+                  20200669    00000003     --HOLE--
+                  2020066c    00000001     libc.a : memory.c.obj (.data.memory_is_initialized)
+                  2020066d    00000003     --HOLE--
+                  20200670    00000001     libsysbm.a : open.c.obj (.data.open.stream_init)
 
-.sysmem    0    20200640    00000200     UNINITIALIZED
-                  20200640    00000010     libc.a : memory.c.obj (.sysmem)
-                  20200650    000001f0     --HOLE--
+.sysmem    0    20200678    00000200     UNINITIALIZED
+                  20200678    00000010     libc.a : memory.c.obj (.sysmem)
+                  20200688    000001f0     --HOLE--
 
 .bss       0    20200840    000001ef     UNINITIALIZED
                   20200840    00000120     libsysbm.a : trgmsg.c.obj (.bss:_CIOBUF_)
@@ -361,7 +365,7 @@ MODULE SUMMARY
                                                                
        Heap:                          0       0         512    
        Stack:                         0       0         512    
-       Linker Generated:              0       150       0      
+       Linker Generated:              0       163       0      
     +--+------------------------------+-------+---------+---------+
        Grand Total:                   12834   8589      3108   
 
@@ -570,7 +574,7 @@ UNDEFED   __mpu_init
 2020061c  _lock                                        
 000019ab  _nop                                         
 20200574  _stream                                      
-20200640  _sys_memory                                  
+20200678  _sys_memory                                  
 UNDEFED   _system_post_cinit                           
 000032ef  _system_pre_init                             
 20200620  _unlock                                      

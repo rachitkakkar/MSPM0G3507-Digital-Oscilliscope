@@ -20,12 +20,12 @@ uint32_t Switch_In(void){
   uint32_t data = GPIOB->DIN31_0;
   uint32_t state = 0;
 
-  if (data & (1<<16)) state |= 0x1; //toggle cursor
+  if (data & (1<<16)) state |= 0x1; //move right/down
   
   data = GPIOA->DIN31_0;
-  if (data & (1<<16)) state |= 0x2; //pause/unpause waveform
-  if (data & (1<<17)) state |= 0x4; //move cursor left/up
-  if (data & (1<<18)) state |= 0x8; //move cursor right/down
+  if (data & (1<<16)) state |= 0x2; //toggle pause/play
+  if (data & (1<<17)) state |= 0x4; //
+  if (data & (1<<18)) state |= 0x8; //move left/up
 
   return state; // return 0; //replace this your code
 }

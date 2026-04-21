@@ -46,8 +46,13 @@ uint32_t Random(uint32_t n){
 SlidePot Sensor(1500,0); // copy calibration from Lab 7
 Oscilliscope scope;
 Application app;
+
 Cursor hCursor(20, 130, HORIZONTAL, 5); //temp values
 Cursor hCursor2(100, 130, HORIZONTAL, 5); //temp values
+Cursor vCursor(120, 20, VERTICAL, 5);
+Cursor vCursor2(120, 100, VERTICAL, 5);
+Cursor* cursors[] = {&hCursor, &hCursor2, &vCursor, &vCursor2};
+int index = 0;
 Cursor* selected = &hCursor;
 
 // games  engine runs at 30Hz
@@ -69,16 +74,29 @@ void TIMG12_IRQHandler(void) {
     //   while(Switch_In() == 0x01); //have to wait for release?
     // }
 
-    if (now == 0x02 && (now != last)) {
+    if (now == 0x02 && (now != last)) { //pause/play
       scope.paused = !scope.paused;
       GPIOA->DOUTTGL31_0 = (1 << 28);
       Sound_Pause(); //sound
     }
 
-    if (now == 0x01 && (now != last)) {
+    if (now == 0x04 && (now != last)) { //left/down
+      selected->Move(-1, app);
+      Sound_CursorMove();
+    }
+
+    if(now == 0x01 && (now != last)) { //right/up
       selected->Move(1, app);
       Sound_CursorMove();
     }
+
+    if(now == 0x08 && (now != last)){
+      index++;
+      index %= 4;
+      selected = cursors[index];
+      Sound_CursorToggle();
+    } 
+
 
     // 3) move sprites
     // 4) start sounds
@@ -297,6 +315,8 @@ int main(void){ // final main
 
     hCursor.Draw();
     hCursor2.Draw();
+    vCursor.Draw();
+    vCursor2.Draw();
 
     // wait for semaphore
        // clear semaphore

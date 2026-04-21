@@ -112,7 +112,7 @@ void Cursor::Draw() {
         ST7735_DrawBitmap(x, y, PlayerShip0, 18, 8);
     }
     else if (type == Type::VERTICAL){
-        ST7735_DrawBitmap(x, y, vertical_orange_cursor, 18, 8);
+        ST7735_DrawBitmap(x, y, PlayerShip0_Updated, 7, 14);
     }
 }
 
@@ -126,8 +126,8 @@ void Cursor::Erase(Application& app) {
         h = 8;
     } 
     else {
-        w = 8;
-        h = 18;
+        w = 7;
+        h = 14;
     }
 
     // ST7735_FillRect(x, y-8, 18, 8, ST7735_BLACK);
@@ -142,13 +142,21 @@ void Cursor::Erase(Application& app) {
 }
 
 void Cursor::Move(int direction, Application& app){
+
     Erase(app);
     if (type == Type::HORIZONTAL) {
+        //overlap check
         x += (direction * step_size);
-        x %= GRID_WIDTH;
+        if (x <= 0) {
+            x = GRID_WIDTH;
+        }else{
+        x %= GRID_WIDTH;}
     } else {
-        y += (direction * step_size) % GRID_HEIGHT;
-        y %= GRID_HEIGHT;
+        y += (direction * step_size);
+        if (y <= 0) {
+            y = GRID_HEIGHT;
+        }else{
+        y %= GRID_HEIGHT;}
     }
     Erase(app);
 
