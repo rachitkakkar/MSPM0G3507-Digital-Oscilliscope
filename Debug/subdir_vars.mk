@@ -2,24 +2,22 @@
 # Automatically-generated file. Do not edit!
 ################################################################################
 
-SHELL = cmd.exe
-
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/Clock.cpp \
-C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/DAC5.cpp \
+/Users/rachitkakkar/Documents/root/Documents/College\ Work/ECE\ 319H/MSPM0_ValvanoWare/inc/Clock.cpp \
+/Users/rachitkakkar/Documents/root/Documents/College\ Work/ECE\ 319H/MSPM0_ValvanoWare/inc/DAC5.cpp \
 ../LED.cpp \
 ../Lab9HMain.cpp \
-C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/LaunchPad.cpp \
+/Users/rachitkakkar/Documents/root/Documents/College\ Work/ECE\ 319H/MSPM0_ValvanoWare/inc/LaunchPad.cpp \
 ../Oscilloscope.cpp \
-C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/SPI.cpp \
-C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/ST7735.cpp \
-C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/SlidePot.cpp \
+/Users/rachitkakkar/Documents/root/Documents/College\ Work/ECE\ 319H/MSPM0_ValvanoWare/inc/SPI.cpp \
+/Users/rachitkakkar/Documents/root/Documents/College\ Work/ECE\ 319H/MSPM0_ValvanoWare/inc/ST7735.cpp \
+/Users/rachitkakkar/Documents/root/Documents/College\ Work/ECE\ 319H/MSPM0_ValvanoWare/inc/SlidePot.cpp \
 ../SmallFont.cpp \
 ../Sound.cpp \
 ../Switch.cpp \
-C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/TExaS.cpp \
-C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/Timer.cpp 
+/Users/rachitkakkar/Documents/root/Documents/College\ Work/ECE\ 319H/MSPM0_ValvanoWare/inc/TExaS.cpp \
+/Users/rachitkakkar/Documents/root/Documents/College\ Work/ECE\ 319H/MSPM0_ValvanoWare/inc/Timer.cpp 
 
 CMD_SRCS += \
 ../mspm0g3507.cmd 
@@ -89,19 +87,19 @@ CPP_DEPS__QUOTED += \
 "Timer.d" 
 
 CPP_SRCS__QUOTED += \
-"C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/Clock.cpp" \
-"C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/DAC5.cpp" \
+"/Users/rachitkakkar/Documents/root/Documents/College Work/ECE 319H/MSPM0_ValvanoWare/inc/Clock.cpp" \
+"/Users/rachitkakkar/Documents/root/Documents/College Work/ECE 319H/MSPM0_ValvanoWare/inc/DAC5.cpp" \
 "../LED.cpp" \
 "../Lab9HMain.cpp" \
-"C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/LaunchPad.cpp" \
+"/Users/rachitkakkar/Documents/root/Documents/College Work/ECE 319H/MSPM0_ValvanoWare/inc/LaunchPad.cpp" \
 "../Oscilloscope.cpp" \
-"C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/SPI.cpp" \
-"C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/ST7735.cpp" \
-"C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/SlidePot.cpp" \
+"/Users/rachitkakkar/Documents/root/Documents/College Work/ECE 319H/MSPM0_ValvanoWare/inc/SPI.cpp" \
+"/Users/rachitkakkar/Documents/root/Documents/College Work/ECE 319H/MSPM0_ValvanoWare/inc/ST7735.cpp" \
+"/Users/rachitkakkar/Documents/root/Documents/College Work/ECE 319H/MSPM0_ValvanoWare/inc/SlidePot.cpp" \
 "../SmallFont.cpp" \
 "../Sound.cpp" \
 "../Switch.cpp" \
-"C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/TExaS.cpp" \
-"C:/Users/atanu/Documents/MSPM0_ValvanoWare/MSPM0_ValvanoWare/inc/Timer.cpp" 
+"/Users/rachitkakkar/Documents/root/Documents/College Work/ECE 319H/MSPM0_ValvanoWare/inc/TExaS.cpp" \
+"/Users/rachitkakkar/Documents/root/Documents/College Work/ECE 319H/MSPM0_ValvanoWare/inc/Timer.cpp" 
 
 

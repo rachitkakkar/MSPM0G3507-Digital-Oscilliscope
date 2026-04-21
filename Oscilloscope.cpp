@@ -116,6 +116,7 @@ void Cursor::Move(int direction, Application& app){
         y += (direction * step_size) % GRID_HEIGHT;
         y %= GRID_HEIGHT;
     }
+    Erase(app);
 
     // // defining bounds
     // int width;
