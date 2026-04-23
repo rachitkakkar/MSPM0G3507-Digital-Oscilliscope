@@ -3,7 +3,9 @@
 Application::Application() {
     paused = 1;
     cnt = 0;
-    lang = ENGLISH;
+    cursor_info = false;
+    zoom_level = 1;
+    lang = Language::ENGLISH;
 }
 
 void Application::Draw_Grid() {
@@ -51,30 +53,29 @@ void Application::Fix_Grid(uint32_t x, uint32_t y) {
 #define VREF_MV 3300
 #define TOTAL_TIME_MS 10
 
-void Application::Draw_Graph(const Oscilliscope& scope) {
+void Application::Draw_Graph(const Oscilliscope& scope, int32_t deltaX, int32_t deltaY) {
     cnt++;
     cnt %= 100;
-
     for (int i = 0; i < GRID_WIDTH; i++) {
         int32_t point = MAP_Y(scope.prevSamples[i]);
-        ST7735_DrawPixel(i, point, ST7735_BLACK);
-        ST7735_DrawPixel(i, point+1, ST7735_BLACK);
-        ST7735_DrawPixel(i+1, point, ST7735_BLACK);
-        ST7735_DrawPixel(i+1, point+1, ST7735_BLACK);
-        Fix_Grid(i, point);
-        Fix_Grid(i, point+1);
-        Fix_Grid(i+1, point);
-        Fix_Grid(i+1, point+1);
+        ST7735_DrawPixel(i*zoom_level, point, ST7735_BLACK);
+        ST7735_DrawPixel(i*zoom_level, point+1, ST7735_BLACK);
+        ST7735_DrawPixel(i*zoom_level+1, point, ST7735_BLACK);
+        ST7735_DrawPixel(i*zoom_level+1, point+1, ST7735_BLACK);
+        Fix_Grid(i*zoom_level, point);
+        Fix_Grid(i*zoom_level, point+1);
+        Fix_Grid(i*zoom_level+1, point);
+        Fix_Grid(i*zoom_level+1, point+1);
     }
 
     // Draw_Grid();
 
     for (int i = 0; i < GRID_WIDTH; i++) {
         int32_t point = MAP_Y(scope.samples[i]);
-        ST7735_DrawPixel(i, point, ST7735_YELLOW);
-        ST7735_DrawPixel(i, point+1, ST7735_YELLOW);
-        ST7735_DrawPixel(i+1, point, ST7735_YELLOW);
-        ST7735_DrawPixel(i+1, point+1, ST7735_YELLOW);
+        ST7735_DrawPixel(i*zoom_level, point, ST7735_YELLOW);
+        ST7735_DrawPixel(i*zoom_level, point+1, ST7735_YELLOW);
+        ST7735_DrawPixel(i*zoom_level+1, point, ST7735_YELLOW);
+        ST7735_DrawPixel(i*zoom_level+1, point+1, ST7735_YELLOW);
     }
 
     uint32_t minV = 4095, maxV = 0;
@@ -83,81 +84,113 @@ void Application::Draw_Graph(const Oscilliscope& scope) {
         if (scope.samples[i] > maxV) maxV = scope.samples[i];
     }
     
-
     if (cnt == 0 || true) {
-        uint32_t vpp_mv = ((maxV - minV) * VREF_MV) / 4095;
+        if (!cursor_info) {
+            uint32_t vpp_mv = ((maxV - minV) * VREF_MV) / 4095;
 
-        uint32_t midpoint = (maxV + minV) / 2;
-        // int32_t crossings = 0;
-        // for (int i = 1; i < GRID_WIDTH; i++) {
-        //     if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
-        //         crossings++;
-        //     }
-        // }
+            uint32_t midpoint = (maxV + minV) / 2;
+            // int32_t crossings = 0;
+            // for (int i = 1; i < GRID_WIDTH; i++) {
+            //     if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
+            //         crossings++;
+            //     }
+            // }
 
-        ST7735_SetCursor(0, 14);
-        ST7735_OutString((char*)"Vpp:  ");
-        ST7735_OutUDec(vpp_mv / 1000);
-        ST7735_OutChar('.');
-        
-        uint32_t decimals = (vpp_mv % 1000) / 10;
-        if (decimals < 10) ST7735_OutChar('0'); // Leading zero padding
-        ST7735_OutUDec(decimals);
-        ST7735_OutString((char*)" V  ");
+            ST7735_SetCursor(0, 14);
+            if (lang == Language::ENGLISH) ST7735_OutString((char*)"Volatage_pp: ");
+            else ST7735_OutString((char*)"Voltaje_pp: ");
+            ST7735_OutUDec(vpp_mv / 1000);
+            ST7735_OutChar('.');
+            
+            uint32_t decimals = (vpp_mv % 1000) / 10;
+            if (decimals < 10) ST7735_OutChar('0'); // Leading zero padding
+            ST7735_OutUDec(decimals);
+            ST7735_OutString((char*)" V");
 
-        // int x = 0; // skip overflow
-        // while (scope.times[x] <= scope.times[x+1]) {
-        //     x++;
-        // }
-        // uint32_t elapsedCycles = (scope.times[x] - scope.times[x+1]) * (GRID_WIDTH-1);
-        // uint32_t elapsedCycles = 12544000;
+            // int x = 0; // skip overflow
+            // while (scope.times[x] <= scope.times[x+1]) {
+            //     x++;
+            // }
+            // uint32_t elapsedCycles = (scope.times[x] - scope.times[x+1]);
+            // uint32_t elapsedCycles = 12544000;
 
-        // if (elapsedCycles > 0 && crossings > 0) {
-        //     uint64_t numerator = (uint64_t)crossings * 80000000;
-        //     uint32_t freq_hz = (uint32_t)(numerator / elapsedCycles);
+            // if (elapsedCycles > 0 && crossings > 0) {
+            //     uint64_t numerator = (uint64_t)crossings * 80000000;
+            //     uint32_t freq_hz = (uint32_t)(numerator / elapsedCycles);
 
-        //     ST7735_SetCursor(0, 15);
-        //     ST7735_OutString((char*)"Freq: ");
-        //     ST7735_OutUDec(freq_hz);
-        //     ST7735_OutString((char*)" Hz    ");
-        // }
+            //     ST7735_SetCursor(0, 15);
+            //     ST7735_OutString((char*)"Freq: ");
+            //     ST7735_OutUDec(freq_hz);
+            //     ST7735_OutString((char*)" Hz    ");
+            // }
 
-        uint32_t first_idx = 0;
-        uint32_t last_idx = 0;
-        uint32_t crossings = 0;
-        bool found_first = false;
+            uint32_t first_idx = 0;
+            uint32_t last_idx = 0;
+            uint32_t crossings = 0;
+            bool found_first = false;
 
-        for (int i = 1; i < GRID_WIDTH; i++) {
-            // Detect Rising Edge crossing the midpoint
-            if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
-                if (!found_first) {
-                    first_idx = i;
-                    found_first = true;
+            for (int i = 1; i < GRID_WIDTH; i++) {
+                // Detect Rising Edge crossing the midpoint
+                if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
+                    if (!found_first) {
+                        first_idx = i;
+                        found_first = true;
+                    }
+                    last_idx = i;
+                    crossings++;
                 }
-                last_idx = i;
-                crossings++;
+            }
+
+            ST7735_SetCursor(0, 15);
+           if (lang == Language::ENGLISH) ST7735_OutString((char*)"Frequency: ");
+           else ST7735_OutString((char*)"Frecuencia: ");
+
+            if (crossings >= 2) {
+                uint32_t actual_periods = crossings - 1;
+                uint32_t samples_elapsed = last_idx - first_idx;
+
+                // Total cycles elapsed between the first and last edge
+                uint64_t total_cycles = (uint64_t)samples_elapsed * 40945;
+
+                if (total_cycles > 0) {
+                    uint64_t numerator = (uint64_t)actual_periods * 80000000;
+                    uint32_t freq_hz = (uint32_t)(numerator / total_cycles);
+
+                    ST7735_OutUDec(freq_hz);
+                    ST7735_OutString((char*)" Hz");
+                }
+            } else {
+                ST7735_OutString((char*)"--- Hz");
             }
         }
+        else {
+            if (deltaX < 0) deltaX = -deltaX;
+            if (deltaY < 0) deltaY = -deltaY;
 
-        ST7735_SetCursor(0, 15);
-        ST7735_OutString((char*)"Freq: ");
 
-        if (crossings >= 2) {
-            uint32_t actual_periods = crossings - 1;
-            uint32_t samples_elapsed = last_idx - first_idx;
+            deltaX = (deltaX * 40945) / 12;
+            ST7735_SetCursor(0, 14);
+            if (lang == Language::ENGLISH) ST7735_OutString((char*)"Delta X:  ~");
+            else ST7735_OutString((char*)"Cambio de X:  ");
+            ST7735_OutUDec((deltaX) / 1000);
+            ST7735_OutChar('.');
+            
+            uint32_t decimals = (deltaX % 1000) / 10;
+            if (decimals < 10) ST7735_OutChar('0'); // Leading zero padding
+            ST7735_OutUDec(decimals);
+            ST7735_OutString((char*)" ms");
 
-            // Total cycles elapsed between the first and last edge
-            uint64_t total_cycles = (uint64_t)samples_elapsed * 97400;
-
-            if (total_cycles > 0) {
-                uint64_t numerator = (uint64_t)actual_periods * 80000000;
-                uint32_t freq_hz = (uint32_t)(numerator / total_cycles);
-
-                ST7735_OutUDec(freq_hz);
-                ST7735_OutString((char*)" Hz    ");
-            }
-        } else {
-            ST7735_OutString((char*)"--- Hz    ");
+            deltaY =(deltaY * VREF_MV) / 127; // Map to 3.3 V (in mV)
+            ST7735_SetCursor(0, 15);
+            if (lang == Language::ENGLISH) ST7735_OutString((char*)"Delta Y:  ");
+            else ST7735_OutString((char*)"Cambio de Y:  ");
+            ST7735_OutUDec((deltaY) / 1000);
+            ST7735_OutChar('.');
+            
+            decimals = (deltaY % 1000) / 10;
+            if (decimals < 10) ST7735_OutChar('0'); // Leading zero padding
+            ST7735_OutUDec(decimals);
+            ST7735_OutString((char*)" V");
         }
     }
 }
@@ -201,23 +234,61 @@ void Cursor::Erase(Application& app) {
     TIMG6->CPU_INT.IMASK |= 1;
 }
 
-void Cursor::Move(int direction, Application& app){
+void Cursor::Move(int direction, Application& app, Cursor* sibling){
+    int next_x = x;
+    int next_y = y;
 
-    Erase(app);
     if (type == Type::HORIZONTAL) {
-        //overlap check
-        x += (direction * step_size);
-        if (x <= 0) {
-            x = GRID_WIDTH;
+        next_x += (direction * step_size);
+        if (next_x <= 0) {
+            next_x = GRID_WIDTH;
         }else{
-        x %= GRID_WIDTH;}
+        next_x %= GRID_WIDTH;}
     } else {
-        y += (direction * step_size);
-        if (y <= 0) {
-            y = GRID_HEIGHT;
+        next_y += (direction * step_size);
+        if (next_y <= 0) {
+            next_y = GRID_HEIGHT;
         }else{
-        y %= GRID_HEIGHT;}
+        next_y %= GRID_HEIGHT;}
     }
+
+    //overlap check
+    bool overlap = false;
+    int w;
+    int h;
+    if(sibling != nullptr){
+
+    if (type == Type::HORIZONTAL) {
+        w = 18;
+        h = 8;
+    } 
+    else {
+        w = 7;
+        h = 14;
+    }
+
+    int l1 = next_x;
+    int r1 = next_x + w;
+    int t1 = next_y - h;
+    int b1 = next_y;
+
+    int l2 = sibling->x;
+    int r2 = sibling->x + w; 
+    int t2 = sibling->y - h;
+    int b2 = sibling->y;
+
+    if (l1 < r2 && r1 > l2 && t1 < b2 && b1 > t2) {
+        overlap = true;
+    }
+
+    if(overlap == false){
+        Erase(app);
+        x = next_x;
+        y = next_y;
+    }
+
+    }
+
     Erase(app);
 
     // // defining bounds
@@ -241,8 +312,6 @@ void Cursor::Move(int direction, Application& app){
     // if(y < 0){y = 0;}
     // if(y > 127 - height){y = 127 - height;}
 }
-
-
 
 Oscilliscope::Oscilliscope() {
     sampleIdx = 0;

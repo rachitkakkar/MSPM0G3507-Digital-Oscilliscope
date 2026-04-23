@@ -43,7 +43,7 @@ uint32_t Random(uint32_t n){
   return (Random32()>>16)%n;
 }
 
-SlidePot Sensor(1500,0); // copy calibration from Lab 7
+SlidePot Sensor(1742,99); // copy calibration from Lab 7
 Oscilliscope scope;
 Application app;
 bool clear = false;
@@ -65,6 +65,19 @@ void TIMG12_IRQHandler(void) {
     GPIOA->DOUTTGL31_0 = BLUE; // toggle PB22 (minimally intrusive debugging)
     // game engine goes here
     // 1) sample slide pot
+    uint32_t in = Sensor.In();
+
+    if (in < 1365) {
+      if (app.zoom_level != 1) clear = true;
+      app.zoom_level = 1;
+    } else if (in < 2730) {
+      if (app.zoom_level != 2) clear = true;
+      app.zoom_level = 2;
+    } else {
+      if (app.zoom_level != 4) clear = true;
+      app.zoom_level = 4;
+    }
+
     // 2) read input switches
     
     now = Switch_In();
@@ -81,13 +94,19 @@ void TIMG12_IRQHandler(void) {
       Sound_Pause(); //sound
     }
 
+    Cursor* sibling = nullptr;
+    if(index == 0){sibling = cursors[1];} // hCursor (sibling is hCursor2)
+    else if(index == 1){sibling = cursors[0];} // hCursor2 (sibling is hCursor)
+    else if(index == 2){sibling = cursors[3];} // vCursor (sibling is vCursor2)
+    else if(index == 3){sibling = cursors[2];} // vCursor2 (sibling is vCursor)
+
     if (now == 0x04 && (now != last)) { //left/down
-      selected->Move(-1, app);
+      selected->Move(-1, app, sibling);
       Sound_CursorMove();
     }
 
     if(now == 0x01 && (now != last)) { //right/up
-      selected->Move(1, app);
+      selected->Move(1, app, sibling);
       Sound_CursorMove();
     }
 
@@ -98,6 +117,21 @@ void TIMG12_IRQHandler(void) {
       selected = cursors[index];
       Sound_CursorToggle();
     } 
+    
+    if(now == 0x09 && (now != last)) {
+      clear = true;
+      app.cursor_info = !app.cursor_info;
+    }
+
+    if (now == 0x0C && (now != last)) {
+      clear = true;
+      if (app.lang == Language::ENGLISH) {
+        app.lang = Language::SPANISH;
+      }
+      else {
+        app.lang = Language::ENGLISH;
+      }
+    }
 
 
     // 3) move sprites
@@ -310,7 +344,7 @@ int main(void){ // final main
       // disable timer
       // __disable_irq();
 
-      app.Draw_Graph(scope);
+      app.Draw_Graph(scope, (hCursor.x - hCursor2.x), (vCursor.y - vCursor2.y));
 
       scope.bufferFull = false;
       scope.sampleIdx = 0;
@@ -319,6 +353,9 @@ int main(void){ // final main
       // __enable_irq();
       TIMG6->CPU_INT.IMASK |= 1;
     }
+
+    // ST7735_SetCursor(0, 15);
+    // ST7735_OutUDec(Sensor.In());
 
     hCursor.Draw();
     hCursor2.Draw();

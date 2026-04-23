@@ -32,19 +32,22 @@ struct Oscilliscope {
 // --- APPLICATION ---
 enum Language {
     ENGLISH,
-    HINDI
+    SPANISH
 };
 
 struct Application {
     int paused;
     Language lang;
     int cnt;
+    bool cursor_info;
+    int zoom_level;
+
 
     Application();
     void Init_Startup();
     void Draw_Grid();
     void Fix_Grid(uint32_t x, uint32_t y);
-    void Draw_Graph(const Oscilliscope& scope);
+    void Draw_Graph(const Oscilliscope& scope, int32_t deltaX, int32_t deltaY);
 };
 
 // --- CURSORS ---
@@ -64,7 +67,7 @@ struct Cursor {
 
     //inputs:
     //direction, -1 or 1 (will be multiplied by internal function step_size)
-    void Move(int direction, Application& app);
+    void Move(int direction, Application& app, Cursor* sibling = nullptr);
 };
 
 const unsigned short horizontal_yellow_cursor[] = {
