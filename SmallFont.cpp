@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <SmallFont.h>
 
-#include "../inc/ST7735.h"
+#include "ST7735.h"
 // 5 wide, 6 tall images
 const unsigned short SmallFontVertical[10][30] = {
 { 

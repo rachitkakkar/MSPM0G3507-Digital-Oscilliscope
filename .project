@@ -24,46 +24,4 @@
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>Clock.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/inc/Clock.cpp</locationURI>
-		</link>
-		<link>
-			<name>DAC5.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/inc/DAC5.cpp</locationURI>
-		</link>
-		<link>
-			<name>LaunchPad.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/inc/LaunchPad.cpp</locationURI>
-		</link>
-		<link>
-			<name>SPI.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/inc/SPI.cpp</locationURI>
-		</link>
-		<link>
-			<name>ST7735.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/inc/ST7735.cpp</locationURI>
-		</link>
-		<link>
-			<name>SlidePot.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/inc/SlidePot.cpp</locationURI>
-		</link>
-		<link>
-			<name>TExaS.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/inc/TExaS.cpp</locationURI>
-		</link>
-		<link>
-			<name>Timer.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/inc/Timer.cpp</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>

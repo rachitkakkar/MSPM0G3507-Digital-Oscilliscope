@@ -54,8 +54,6 @@ void Application::Fix_Grid(uint32_t x, uint32_t y) {
 #define TOTAL_TIME_MS 10
 
 void Application::Draw_Graph(const Oscilliscope& scope, int32_t deltaX, int32_t deltaY) {
-    cnt++;
-    cnt %= 100;
     for (int i = 0; i < GRID_WIDTH; i++) {
         int32_t point = MAP_Y(scope.prevSamples[i]);
         ST7735_DrawPixel(i*zoom_level, point, ST7735_BLACK);
@@ -84,114 +82,112 @@ void Application::Draw_Graph(const Oscilliscope& scope, int32_t deltaX, int32_t 
         if (scope.samples[i] > maxV) maxV = scope.samples[i];
     }
     
-    if (cnt == 0 || true) {
-        if (!cursor_info) {
-            uint32_t vpp_mv = ((maxV - minV) * VREF_MV) / 4095;
+    if (!cursor_info) {
+        uint32_t vpp_mv = ((maxV - minV) * VREF_MV) / 4095;
 
-            uint32_t midpoint = (maxV + minV) / 2;
-            // int32_t crossings = 0;
-            // for (int i = 1; i < GRID_WIDTH; i++) {
-            //     if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
-            //         crossings++;
-            //     }
-            // }
+        uint32_t midpoint = (maxV + minV) / 2;
+        // int32_t crossings = 0;
+        // for (int i = 1; i < GRID_WIDTH; i++) {
+        //     if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
+        //         crossings++;
+        //     }
+        // }
 
-            ST7735_SetCursor(0, 14);
-            if (lang == Language::ENGLISH) ST7735_OutString((char*)"Volatage_pp: ");
-            else ST7735_OutString((char*)"Voltaje_pp: ");
-            ST7735_OutUDec(vpp_mv / 1000);
-            ST7735_OutChar('.');
-            
-            uint32_t decimals = (vpp_mv % 1000) / 10;
-            if (decimals < 10) ST7735_OutChar('0'); // Leading zero padding
-            ST7735_OutUDec(decimals);
-            ST7735_OutString((char*)" V");
+        ST7735_SetCursor(0, 14);
+        if (lang == Language::ENGLISH) ST7735_OutString((char*)"Volatage_pp: ");
+        else ST7735_OutString((char*)"Voltaje_pp: ");
+        ST7735_OutUDec(vpp_mv / 1000);
+        ST7735_OutChar('.');
+        
+        uint32_t decimals = (vpp_mv % 1000) / 10;
+        if (decimals < 10) ST7735_OutChar('0'); // Leading zero padding
+        ST7735_OutUDec(decimals);
+        ST7735_OutString((char*)" V");
 
-            // int x = 0; // skip overflow
-            // while (scope.times[x] <= scope.times[x+1]) {
-            //     x++;
-            // }
-            // uint32_t elapsedCycles = (scope.times[x] - scope.times[x+1]);
-            // uint32_t elapsedCycles = 12544000;
+        // int x = 0; // skip overflow
+        // while (scope.times[x] <= scope.times[x+1]) {
+        //     x++;
+        // }
+        // uint32_t elapsedCycles = (scope.times[x] - scope.times[x+1]);
+        // uint32_t elapsedCycles = 12544000;
 
-            // if (elapsedCycles > 0 && crossings > 0) {
-            //     uint64_t numerator = (uint64_t)crossings * 80000000;
-            //     uint32_t freq_hz = (uint32_t)(numerator / elapsedCycles);
+        // if (elapsedCycles > 0 && crossings > 0) {
+        //     uint64_t numerator = (uint64_t)crossings * 80000000;
+        //     uint32_t freq_hz = (uint32_t)(numerator / elapsedCycles);
 
-            //     ST7735_SetCursor(0, 15);
-            //     ST7735_OutString((char*)"Freq: ");
-            //     ST7735_OutUDec(freq_hz);
-            //     ST7735_OutString((char*)" Hz    ");
-            // }
+        //     ST7735_SetCursor(0, 15);
+        //     ST7735_OutString((char*)"Freq: ");
+        //     ST7735_OutUDec(freq_hz);
+        //     ST7735_OutString((char*)" Hz    ");
+        // }
 
-            uint32_t first_idx = 0;
-            uint32_t last_idx = 0;
-            uint32_t crossings = 0;
-            bool found_first = false;
+        uint32_t first_idx = 0;
+        uint32_t last_idx = 0;
+        uint32_t crossings = 0;
+        bool found_first = false;
 
-            for (int i = 1; i < GRID_WIDTH; i++) {
-                // Detect Rising Edge crossing the midpoint
-                if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
-                    if (!found_first) {
-                        first_idx = i;
-                        found_first = true;
-                    }
-                    last_idx = i;
-                    crossings++;
+        for (int i = 1; i < GRID_WIDTH; i++) {
+            // Detect Rising Edge crossing the midpoint
+            if (scope.samples[i-1] < midpoint && scope.samples[i] >= midpoint) {
+                if (!found_first) {
+                    first_idx = i;
+                    found_first = true;
                 }
-            }
-
-            ST7735_SetCursor(0, 15);
-           if (lang == Language::ENGLISH) ST7735_OutString((char*)"Frequency: ");
-           else ST7735_OutString((char*)"Frecuencia: ");
-
-            if (crossings >= 2) {
-                uint32_t actual_periods = crossings - 1;
-                uint32_t samples_elapsed = last_idx - first_idx;
-
-                // Total cycles elapsed between the first and last edge
-                uint64_t total_cycles = (uint64_t)samples_elapsed * 40945;
-
-                if (total_cycles > 0) {
-                    uint64_t numerator = (uint64_t)actual_periods * 80000000;
-                    uint32_t freq_hz = (uint32_t)(numerator / total_cycles);
-
-                    ST7735_OutUDec(freq_hz);
-                    ST7735_OutString((char*)" Hz");
-                }
-            } else {
-                ST7735_OutString((char*)"--- Hz");
+                last_idx = i;
+                crossings++;
             }
         }
-        else {
-            if (deltaX < 0) deltaX = -deltaX;
-            if (deltaY < 0) deltaY = -deltaY;
 
+        ST7735_SetCursor(0, 15);
+        if (lang == Language::ENGLISH) ST7735_OutString((char*)"Frequency: ");
+        else ST7735_OutString((char*)"Frecuencia: ");
 
-            deltaX = (deltaX * 40945) / 12;
-            ST7735_SetCursor(0, 14);
-            if (lang == Language::ENGLISH) ST7735_OutString((char*)"Delta X:  ~");
-            else ST7735_OutString((char*)"Cambio de X:  ");
-            ST7735_OutUDec((deltaX) / 1000);
-            ST7735_OutChar('.');
-            
-            uint32_t decimals = (deltaX % 1000) / 10;
-            if (decimals < 10) ST7735_OutChar('0'); // Leading zero padding
-            ST7735_OutUDec(decimals);
-            ST7735_OutString((char*)" ms");
+        if (crossings >= 2) {
+            uint32_t actual_periods = crossings - 1;
+            uint32_t samples_elapsed = last_idx - first_idx;
 
-            deltaY =(deltaY * VREF_MV) / 127; // Map to 3.3 V (in mV)
-            ST7735_SetCursor(0, 15);
-            if (lang == Language::ENGLISH) ST7735_OutString((char*)"Delta Y:  ");
-            else ST7735_OutString((char*)"Cambio de Y:  ");
-            ST7735_OutUDec((deltaY) / 1000);
-            ST7735_OutChar('.');
-            
-            decimals = (deltaY % 1000) / 10;
-            if (decimals < 10) ST7735_OutChar('0'); // Leading zero padding
-            ST7735_OutUDec(decimals);
-            ST7735_OutString((char*)" V");
+            // Total cycles elapsed between the first and last edge
+            uint64_t total_cycles = (uint64_t)samples_elapsed * 40945;
+
+            if (total_cycles > 0) {
+                uint64_t numerator = (uint64_t)actual_periods * 80000000;
+                uint32_t freq_hz = (uint32_t)(numerator / total_cycles);
+
+                ST7735_OutUDec(freq_hz);
+                ST7735_OutString((char*)" Hz");
+            }
+        } else {
+            ST7735_OutString((char*)"--- Hz");
         }
+    }
+    else {
+        if (deltaX < 0) deltaX = -deltaX;
+        if (deltaY < 0) deltaY = -deltaY;
+
+
+        deltaX = (deltaX * 40945) / 12;
+        ST7735_SetCursor(0, 14);
+        if (lang == Language::ENGLISH) ST7735_OutString((char*)"Delta X:  ~");
+        else ST7735_OutString((char*)"Cambio de X:  ");
+        ST7735_OutUDec((deltaX) / 1000);
+        ST7735_OutChar('.');
+        
+        uint32_t decimals = (deltaX % 1000) / 10;
+        if (decimals < 10) ST7735_OutChar('0'); // Leading zero padding
+        ST7735_OutUDec(decimals);
+        ST7735_OutString((char*)" ms");
+
+        deltaY =(deltaY * VREF_MV) / 127; // Map to 3.3 V (in mV)
+        ST7735_SetCursor(0, 15);
+        if (lang == Language::ENGLISH) ST7735_OutString((char*)"Delta Y:  ");
+        else ST7735_OutString((char*)"Cambio de Y:  ");
+        ST7735_OutUDec((deltaY) / 1000);
+        ST7735_OutChar('.');
+        
+        decimals = (deltaY % 1000) / 10;
+        if (decimals < 10) ST7735_OutChar('0'); // Leading zero padding
+        ST7735_OutUDec(decimals);
+        ST7735_OutString((char*)" V");
     }
 }
 

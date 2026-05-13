@@ -5,7 +5,7 @@
  *      Author:
  */
 #include <ti/devices/msp/msp.h>
-#include "../inc/LaunchPad.h"
+#include "LaunchPad.h"
 // LaunchPad.h defines all the indices into the PINCM table
 
 // initialize your LEDs
@@ -19,30 +19,30 @@ void LED_Init(void){
     //   bit 16 is pull down control
     //   bit 7 is PC peripheral connected, enable transparent data flow
     //   bit 0 selects GPIO function
-      IOMUX->SECCFG.PINCM[PA28INDEX] = (uint32_t) 0x00000081;
-      IOMUX->SECCFG.PINCM[PA27INDEX] = (uint32_t) 0x00000081;
-      IOMUX->SECCFG.PINCM[PA26INDEX] = (uint32_t) 0x00000081;
+    IOMUX->SECCFG.PINCM[PA28INDEX] = (uint32_t) 0x00000081;
+    IOMUX->SECCFG.PINCM[PA27INDEX] = (uint32_t) 0x00000081;
+    IOMUX->SECCFG.PINCM[PA26INDEX] = (uint32_t) 0x00000081;
     // DOE31_0 Data output enable
-      GPIOA->DOE31_0 |= (1<<28)|(1<<27)|(1<<26);
-      GPIOA->DOUTCLR31_0 = (1<<28)|(1<<27)|(1<<26); // LED1 off
+    GPIOA->DOE31_0 |= (1<<28)|(1<<27)|(1<<26);
+    GPIOA->DOUTCLR31_0 = (1<<28)|(1<<27)|(1<<26); // LED1 off
 }
 // data specifies which LED to turn on
 void LED_On(uint32_t data){
     // write this
     // use DOUTSET31_0 register so it does not interfere with other GPIO
-  GPIOA->DOUTSET31_0 = data;
+    GPIOA->DOUTSET31_0 = data;
 }
 
 // data specifies which LED to turn off
 void LED_Off(uint32_t data){
     // write this
     // use DOUTCLR31_0 register so it does not interfere with other GPIO
-  GPIOA->DOUTCLR31_0 = data;
+    GPIOA->DOUTCLR31_0 = data;
 }
 
 // data specifies which LED to toggle
 void LED_Toggle(uint32_t data){
     // write this
     // use DOUTTGL31_0 register so it does not interfere with other GPIO
-  GPIOA->DOUTTGL31_0 = data;
+    GPIOA->DOUTTGL31_0 = data;
 }

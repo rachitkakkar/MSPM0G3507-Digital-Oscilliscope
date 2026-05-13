@@ -1,10 +1,10 @@
 #ifndef _SCOPEH_
 #define _SCOPEH_
 
-#include "../inc/ST7735.h"
+#include "ST7735.h"
 #include <ti/devices/msp/msp.h>
-#include "../inc/Clock.h"
-#include "../inc/LaunchPad.h"
+#include "Clock.h"
+#include "LaunchPad.h"
 #include "images/images.h"
 
 #define MAJOR_GRID_LINE ST7735_LIGHTGREY
@@ -38,10 +38,8 @@ enum Language {
 struct Application {
     int paused;
     Language lang;
-    int cnt;
     bool cursor_info;
     int zoom_level;
-
 
     Application();
     void Init_Startup();

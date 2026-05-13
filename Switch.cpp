@@ -5,7 +5,7 @@
  *      Author:
  */
 #include <ti/devices/msp/msp.h>
-#include "../inc/LaunchPad.h"
+#include "LaunchPad.h"
 // LaunchPad.h defines all the indices into the PINCM table
 void Switch_Init(void){
     // write this
