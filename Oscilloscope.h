@@ -56,15 +56,15 @@ enum Type {
 struct Cursor {
     int x;
     int y;
-    int step_size; //how much the cursor will move (in pixels) by when you hit switch
+    int step_size; // how much the cursor will move (in pixels) by when you hit switch
     Type type;
     
     Cursor(int x1, int y1, Type t, int step_size);
     void Draw();
     void Erase(Application& app);
 
-    //inputs:
-    //direction, -1 or 1 (will be multiplied by internal function step_size)
+    // inputs:
+    // direction, -1 or 1 (will be multiplied by internal function step_size)
     void Move(int direction, Application& app, Cursor* sibling = nullptr);
 };
 

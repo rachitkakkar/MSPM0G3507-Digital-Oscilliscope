@@ -332,7 +332,7 @@ int main(void){ // final main
   TExaS_Init(0,0,&TExaS_LaunchPadLogicPB27PB26); // PB27 and PB26
 
   // initialize timer interrupts
-  TimerG6_IntArm(8000000 / 50000, 0, 1); // Scope interrupt, 10kHz
+  TimerG6_IntArm(8000000 / 50000, 0, 1); // Scope interrupt, 50kHz
   TimerG12_IntArm(8000000 / 30, 0); // Game engine interrupt, 30Hz
 
   // initialize all data structures
@@ -340,9 +340,9 @@ int main(void){ // final main
 
   while(1){
     if (scope.bufferFull && !scope.paused) {
-      TIMG6->CPU_INT.IMASK &= 0;
       // disable timer
       // __disable_irq();
+      TIMG6->CPU_INT.IMASK &= 0;
 
       app.Draw_Graph(scope, (hCursor.x - hCursor2.x), (vCursor.y - vCursor2.y));
 
@@ -350,8 +350,8 @@ int main(void){ // final main
       scope.sampleIdx = 0;
 
       // enable timer
-      // __enable_irq();
       TIMG6->CPU_INT.IMASK |= 1;
+      // __enable_irq();
     }
 
     // ST7735_SetCursor(0, 15);
@@ -368,10 +368,5 @@ int main(void){ // final main
       app.Draw_Grid();
       clear = false;
     }
-
-    // wait for semaphore
-       // clear semaphore
-       // update ST7735R
-    // check for end game or level switch
   }
 }
